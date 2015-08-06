@@ -53,6 +53,7 @@
 
     <modules>
         <module>app</module>
+        <module>cassandra-guice</module>
 
         <module>karaf/distribution</module>
         <module>karaf/features</module>
@@ -180,6 +181,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.james</groupId>
+                <artifactId>cassandra-guice</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.logging</groupId>
                 <artifactId>pax-logging-api</artifactId>
