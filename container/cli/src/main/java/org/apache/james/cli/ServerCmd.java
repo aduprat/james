@@ -18,6 +18,13 @@
  ****************************************************************/
 package org.apache.james.cli;
 
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -28,13 +35,7 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.james.cli.probe.ServerProbe;
 import org.apache.james.cli.probe.impl.JmxServerProbe;
 import org.apache.james.cli.type.CmdType;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Map.Entry;
+import org.apache.james.rrt.lib.Mappings;
 
 /**
  * Command line utility for managing various aspect of the James server.
@@ -173,8 +174,8 @@ public class ServerCmd {
                 }
             } else if (CmdType.LISTUSERDOMAINMAPPINGS.equals(cmdType)) {
                 if (cmdType.hasCorrectArguments(arguments.length)) {
-                    Collection<String> userDomainMappings = probe.listUserDomainMappings(arguments[1], arguments[2]);
-                    sCmd.print(userDomainMappings.toArray(new String[userDomainMappings.size()]), System.out);
+                    Mappings userDomainMappings = probe.listUserDomainMappings(arguments[1], arguments[2]);
+                    sCmd.print(userDomainMappings.asStrings(), System.out);
                 } else {
                     printUsage();
                     System.exit(1);
@@ -243,6 +244,10 @@ public class ServerCmd {
      * @param out  The output stream to which printing should occur.
      */
     public void print(String[] data, PrintStream out) {
+        print(Arrays.asList(data), out);
+    }
+
+    public void print(Iterable<String> data, PrintStream out) {
         if (data == null)
             return;
 
@@ -252,15 +257,15 @@ public class ServerCmd {
 
         out.println();
     }
-
-    public void print(Map<String, Collection<String>> map, PrintStream out) {
+    
+    public void print(Map<String, Mappings> map, PrintStream out) {
         if (map == null)
             return;
 
-        for (Entry<String, Collection<String>> entry : map.entrySet()) {
+        for (Entry<String, Mappings> entry : map.entrySet()) {
             out.print(entry.getKey());
             out.print("=");
-            out.println(entry.getValue().toString());
+            out.println(entry.getValue().serialize());
         }
         out.println();
     }
